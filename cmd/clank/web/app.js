@@ -164,6 +164,9 @@ async function handleDragEnd(evt) {
     }
 }
 
+// Track current task's parent for navigation
+let currentTaskParentId = null;
+
 // Task Modal
 function openTaskModal(task = null) {
     const title = document.getElementById('modal-title');
@@ -171,28 +174,40 @@ function openTaskModal(task = null) {
     const deleteBtn = document.getElementById('delete-task-btn');
     const subtasksSection = document.getElementById('subtasks-section');
     const subtaskInput = document.getElementById('subtask-title-input');
+    const parentNav = document.getElementById('parent-task-nav');
 
     // Reset delete button state
     deleteBtn.textContent = 'Delete';
     deleteBtn.classList.remove('confirming');
 
     if (task) {
-        title.textContent = 'Edit Task';
+        title.textContent = task.parent_id ? 'Edit Subtask' : 'Edit Task';
         document.getElementById('task-id').value = task.id;
         document.getElementById('task-title').value = task.title;
         document.getElementById('task-project').value = task.project_id;
         document.getElementById('task-description').value = task.description || '';
         document.getElementById('task-spec').value = task.spec || '';
         deleteBtn.style.display = 'block';
-        subtasksSection.style.display = 'block';
-        subtaskInput.value = '';
-        renderSubtasks(task.id);
+
+        // Show/hide parent navigation
+        currentTaskParentId = task.parent_id || null;
+        if (task.parent_id) {
+            parentNav.classList.add('visible');
+            subtasksSection.style.display = 'none';
+        } else {
+            parentNav.classList.remove('visible');
+            subtasksSection.style.display = 'block';
+            subtaskInput.value = '';
+            renderSubtasks(task.id);
+        }
     } else {
         title.textContent = 'New Task';
         form.reset();
         document.getElementById('task-id').value = '';
         deleteBtn.style.display = 'none';
         subtasksSection.style.display = 'none';
+        parentNav.classList.remove('visible');
+        currentTaskParentId = null;
     }
 
     taskModal.classList.add('active');
@@ -240,6 +255,16 @@ document.querySelectorAll('.modal .close').forEach(btn => {
     });
 });
 
+// Back to parent task
+document.getElementById('back-to-parent-btn').addEventListener('click', () => {
+    if (currentTaskParentId) {
+        const parentTask = tasks.find(t => t.id === currentTaskParentId);
+        if (parentTask) {
+            openTaskModal(parentTask);
+        }
+    }
+});
+
 document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -280,8 +305,17 @@ taskForm.addEventListener('submit', async (e) => {
         } else {
             await api('POST', '/tasks', { ...data, status: 'backlog' });
         }
-        taskModal.classList.remove('active');
         await loadTasks();
+
+        // If saving a subtask, go back to parent; otherwise close modal
+        if (currentTaskParentId) {
+            const parentTask = tasks.find(t => t.id === currentTaskParentId);
+            if (parentTask) {
+                openTaskModal(parentTask);
+                return;
+            }
+        }
+        taskModal.classList.remove('active');
     } catch (err) {
         alert('Failed to save task: ' + err.message);
     }
@@ -427,6 +461,21 @@ document.addEventListener('keydown', (e) => {
             }
         });
     }
+});
+
+// Mobile tab navigation
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const column = btn.dataset.column;
+
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update visible column
+        document.querySelectorAll('.column').forEach(col => col.classList.remove('active'));
+        document.querySelector(`.column[data-status="${column}"]`).classList.add('active');
+    });
 });
 
 // Initialize

@@ -20,8 +20,15 @@
         </div>
     </header>
 
+    <nav class="mobile-tabs" id="mobile-tabs">
+        <button class="tab-btn active" data-column="backlog">Backlog</button>
+        <button class="tab-btn" data-column="todo">To Do</button>
+        <button class="tab-btn" data-column="in_progress">In Progress</button>
+        <button class="tab-btn" data-column="done">Done</button>
+    </nav>
+
     <main class="kanban">
-        <div class="column" data-status="backlog">
+        <div class="column active" data-status="backlog">
             <h2>Backlog</h2>
             <div class="tasks" id="backlog"></div>
         </div>
@@ -44,6 +51,9 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 id="modal-title">Task Details</h2>
+            <div id="parent-task-nav" class="parent-nav">
+                <button type="button" id="back-to-parent-btn" class="back-btn">&larr; Back to parent task</button>
+            </div>
             <form id="task-form">
                 <input type="hidden" id="task-id">
                 <div class="form-group">
@@ -76,9 +86,9 @@
             <div id="subtasks-section">
                 <h3>Subtasks</h3>
                 <ul id="subtasks-list"></ul>
-                <div id="subtask-input-row" style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                    <input type="text" id="subtask-title-input" placeholder="Subtask title..." style="flex: 1;">
-                    <button type="button" id="add-subtask-btn">Add</button>
+                <div class="subtask-input-row">
+                    <input type="text" id="subtask-title-input" placeholder="Add a subtask..." class="subtask-input">
+                    <button type="button" id="add-subtask-btn" class="secondary">Add</button>
                 </div>
             </div>
         </div>

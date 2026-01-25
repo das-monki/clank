@@ -10,17 +10,17 @@
 }
 
 :root {
-    --bg-primary: #faf7f2;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f5f0e8;
-    --text-primary: #5c4d3d;
-    --text-secondary: #8a7560;
-    --text-muted: #bba890;
-    --accent: #d4724a;
-    --accent-hover: #e8845c;
-    --accent-light: #fceee8;
-    --border: #ebe4d8;
-    --shadow: rgba(92, 77, 61, 0.06);
+    --bg-primary: #FDF4E7;
+    --bg-secondary: #FEFEFC;
+    --bg-tertiary: #f5efe5;
+    --text-primary: #4a4039;
+    --text-secondary: #AD9F92;
+    --text-muted: #c4b8ac;
+    --accent: #E3425C;
+    --accent-hover: #FD926B;
+    --accent-light: #fde8e8;
+    --border: #e8e0d4;
+    --shadow: rgba(74, 64, 57, 0.08);
 }
 
 body {
@@ -137,10 +137,64 @@ button.danger:hover {
     }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 768px) {
     .kanban {
         grid-template-columns: 1fr;
+        height: auto;
+        min-height: calc(100vh - 120px);
     }
+
+    .column {
+        display: none !important;
+    }
+
+    .column.active {
+        display: flex !important;
+    }
+
+    .column h2 {
+        display: none;
+    }
+}
+
+/* Mobile Tabs */
+.mobile-tabs {
+    display: none;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .mobile-tabs {
+        display: flex;
+    }
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 0.5rem;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+    background: var(--border);
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: white;
 }
 
 .column {
@@ -366,15 +420,56 @@ button.danger:hover {
     text-transform: uppercase;
 }
 
-#add-subtask-btn {
+/* Subtask Input */
+.subtask-input-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.subtask-input {
+    flex: 1;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subtask-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.subtask-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Parent Task Navigation */
+.parent-nav {
+    display: none;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.parent-nav.visible {
+    display: block;
+}
+
+.back-btn {
     background: var(--bg-tertiary);
     color: var(--text-secondary);
     font-size: 0.8125rem;
     padding: 0.5rem 0.875rem;
     font-weight: 500;
+    border: 1px solid var(--border);
 }
 
-#add-subtask-btn:hover {
+.back-btn:hover {
     background: var(--border);
     color: var(--text-primary);
 }
