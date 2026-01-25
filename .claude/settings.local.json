@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(dev-browser:dev-browser)",
+      "Bash(curl:*)",
+      "Bash(nix-shell -p bun --run:*)",
+      "Bash(nix develop:*)"
+    ]
+  }
+}

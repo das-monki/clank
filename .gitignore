@@ -1,0 +1,18 @@
+# Build outputs
+result
+/clank
+*.db
+
+# Go
+*.exe
+*.test
+*.out
+
+# Editor
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
