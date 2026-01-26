@@ -68,6 +68,8 @@ async function loadTasks() {
 
 function renderKanban() {
     const columns = ['backlog', 'todo', 'in_progress', 'done'];
+    let globalIndex = 0;
+
     columns.forEach(status => {
         const container = document.getElementById(status);
         container.innerHTML = '';
@@ -76,8 +78,21 @@ function renderKanban() {
             .filter(t => t.status === status && !t.parent_id)
             .sort((a, b) => a.position - b.position);
 
-        columnTasks.forEach(task => {
-            container.appendChild(createTaskCard(task));
+        columnTasks.forEach((task, index) => {
+            const card = createTaskCard(task);
+            // Staggered entrance animation
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(12px)';
+            container.appendChild(card);
+
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, globalIndex * 40);
+            });
+            globalIndex++;
         });
     });
 }
@@ -109,6 +124,13 @@ function createTaskCard(task) {
             <span class="project-tag">${escapeHtml(project?.name || 'Unknown')}</span>
             ${subtaskCount > 0 ? `<span class="subtask-count">${subtaskCount} subtasks</span>` : ''}
         </div>
+        <button class="task-delete-btn" title="Delete task">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+        </button>
     `;
 
     // Handle status selector click
@@ -132,6 +154,20 @@ function createTaskCard(task) {
             }
             statusSelector.classList.remove('open');
         });
+    });
+
+    // Handle delete button click
+    const deleteBtn = card.querySelector('.task-delete-btn');
+    deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete task "${task.title}"?`)) {
+            try {
+                await api('DELETE', `/tasks/${task.id}`);
+                await loadTasks();
+            } catch (err) {
+                alert('Failed to delete task: ' + err.message);
+            }
+        }
     });
 
     card.addEventListener('click', () => openTaskModal(task));
