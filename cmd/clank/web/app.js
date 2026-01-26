@@ -356,6 +356,41 @@ projectFilter.addEventListener('change', (e) => {
     loadTasks();
 });
 
+// Inline project creation
+const inlineProjectCreate = document.getElementById('inline-project-create');
+const inlineProjectName = document.getElementById('inline-project-name');
+
+document.getElementById('btn-add-project').addEventListener('click', () => {
+    inlineProjectCreate.classList.add('visible');
+    inlineProjectName.value = '';
+    inlineProjectName.focus();
+});
+
+document.getElementById('btn-cancel-project').addEventListener('click', () => {
+    inlineProjectCreate.classList.remove('visible');
+});
+
+document.getElementById('btn-confirm-project').addEventListener('click', async () => {
+    const name = inlineProjectName.value.trim();
+    if (!name) return;
+
+    try {
+        const newProject = await api('POST', '/projects', { name, description: '' });
+        await loadProjects();
+        document.getElementById('task-project').value = newProject.id;
+        inlineProjectCreate.classList.remove('visible');
+    } catch (err) {
+        alert('Failed to create project: ' + err.message);
+    }
+});
+
+inlineProjectName.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('btn-confirm-project').click();
+    }
+});
+
 // Close modals
 document.querySelectorAll('.modal .close').forEach(btn => {
     btn.addEventListener('click', () => {

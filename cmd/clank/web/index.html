@@ -73,7 +73,15 @@
                 </div>
                 <div class="form-group">
                     <label for="task-project">Project</label>
-                    <select id="task-project" required></select>
+                    <div class="select-with-add">
+                        <select id="task-project" required></select>
+                        <button type="button" class="btn-add-inline" id="btn-add-project" title="New project">+</button>
+                    </div>
+                    <div class="inline-create" id="inline-project-create">
+                        <input type="text" id="inline-project-name" placeholder="Project name">
+                        <button type="button" class="btn-inline-confirm" id="btn-confirm-project">Create</button>
+                        <button type="button" class="btn-inline-cancel" id="btn-cancel-project">&times;</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="task-description">
