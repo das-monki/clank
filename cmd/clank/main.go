@@ -175,6 +175,44 @@ func runServe(cmd *cobra.Command, args []string) error {
 		}
 		fileServer = http.FileServer(http.FS(webContent))
 	}
+
+	// Serve manifest.json dynamically to support subpath deployments
+	r.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+		basePath := ""
+		if referer := r.Header.Get("Referer"); referer != "" {
+			// Extract base path from referer (e.g., /clank/)
+			if idx := strings.Index(referer, "://"); idx != -1 {
+				rest := referer[idx+3:]
+				if slashIdx := strings.Index(rest, "/"); slashIdx != -1 {
+					path := rest[slashIdx:]
+					// Remove trailing filename/query if present
+					if lastSlash := strings.LastIndex(path, "/"); lastSlash > 0 {
+						basePath = path[:lastSlash]
+					}
+				}
+			}
+		}
+
+		manifest := map[string]interface{}{
+			"name":             "Clank",
+			"short_name":       "Clank",
+			"description":      "Minimal task and project management",
+			"start_url":        basePath + "/",
+			"display":          "standalone",
+			"background_color": "#FFF8EC",
+			"theme_color":      "#FFF8EC",
+			"orientation":      "any",
+			"icons": []map[string]interface{}{
+				{"src": basePath + "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+				{"src": basePath + "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+				{"src": basePath + "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+			},
+		}
+
+		w.Header().Set("Content-Type", "application/manifest+json")
+		json.NewEncoder(w).Encode(manifest)
+	})
+
 	r.NotFound(fileServer.ServeHTTP)
 
 	addr := fmt.Sprintf(":%d", port)

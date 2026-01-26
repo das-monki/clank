@@ -11,13 +11,15 @@ const taskForm = document.getElementById('task-form');
 const projectForm = document.getElementById('project-form');
 
 // API Helpers
+const BASE_PATH = new URL('.', window.location.href).pathname.replace(/\/$/, '');
+
 async function api(method, path, body = null) {
     const opts = {
         method,
         headers: { 'Content-Type': 'application/json' },
     };
     if (body) opts.body = JSON.stringify(body);
-    const res = await fetch('/api' + path, opts);
+    const res = await fetch(BASE_PATH + '/api' + path, opts);
     if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || 'API error');
