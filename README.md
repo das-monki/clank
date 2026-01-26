@@ -91,6 +91,27 @@ A NixOS module is included for deployment:
 }
 ```
 
+## CLI with Pre-configured API URL
+
+If you're running the Clank server on a remote machine (e.g., on your Tailnet), you can create a wrapped CLI package with a pre-configured API URL:
+
+```nix
+# In your flake.nix inputs
+inputs.clank.url = "github:goldie/clank";
+
+# In your NixOS/nix-darwin configuration
+{ inputs, pkgs, ... }:
+{
+  environment.systemPackages = [
+    (inputs.clank.lib.${pkgs.system}.mkCli {
+      apiUrl = "http://your-machine.tailnet:8080";
+    })
+  ];
+}
+```
+
+This creates a `clank` binary that automatically connects to the specified API URL without needing to set `CLANK_API`.
+
 ## License
 
 MIT
