@@ -25,9 +25,10 @@ import (
 var webFS embed.FS
 
 var (
-	apiURL string
-	dbPath string
-	port   int
+	apiURL  string
+	dbPath  string
+	port    int
+	devMode bool
 )
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 	}
 	serveCmd.Flags().IntVar(&port, "port", 8080, "Port to listen on")
 	serveCmd.Flags().StringVar(&dbPath, "db", "clank.db", "Path to SQLite database")
+	serveCmd.Flags().BoolVar(&devMode, "dev", false, "Dev mode: serve web files from disk (hot reload)")
 	rootCmd.AddCommand(serveCmd)
 
 	// Project commands
@@ -159,12 +161,20 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// Register API routes first
 	a.RegisterRoutes(r)
 
-	// Serve embedded web files for non-API routes
-	webContent, err := fs.Sub(webFS, "web")
-	if err != nil {
-		return fmt.Errorf("failed to get web fs: %w", err)
+	// Serve web files
+	var fileServer http.Handler
+	if devMode {
+		// Dev mode: serve from disk for hot reload
+		log.Println("Dev mode: serving web files from ./cmd/clank/web")
+		fileServer = http.FileServer(http.Dir("./cmd/clank/web"))
+	} else {
+		// Production: serve embedded files
+		webContent, err := fs.Sub(webFS, "web")
+		if err != nil {
+			return fmt.Errorf("failed to get web fs: %w", err)
+		}
+		fileServer = http.FileServer(http.FS(webContent))
 	}
-	fileServer := http.FileServer(http.FS(webContent))
 	r.NotFound(fileServer.ServeHTTP)
 
 	addr := fmt.Sprintf(":%d", port)

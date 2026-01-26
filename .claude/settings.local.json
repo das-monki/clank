@@ -4,7 +4,13 @@
       "Skill(dev-browser:dev-browser)",
       "Bash(curl:*)",
       "Bash(nix-shell -p bun --run:*)",
-      "Bash(nix develop:*)"
+      "Bash(nix develop:*)",
+      "Bash(export CLANK_API=http://localhost:8765)",
+      "Bash(__NEW_LINE_cc7fddc03a13e8a8__ echo \"=== Testing Project Commands ===\")",
+      "Bash(./result/bin/clank project:*)",
+      "Bash(PROJECT_ID=\"8f5daa31-2b78-4128-8b11-5d0df3516918\":*)",
+      "Bash(__NEW_LINE_8758a01b3be61022__ echo \"\")",
+      "Bash(sqlite3:*)"
     ]
   }
 }
