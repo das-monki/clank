@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -151,12 +152,12 @@ func (a *API) listTasks(w http.ResponseWriter, r *http.Request) {
 
 func (a *API) createTask(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		ProjectID   string  `json:"project_id"`
-		ParentID    *string `json:"parent_id"`
-		Title       string  `json:"title"`
-		Description string  `json:"description"`
-		Spec        string  `json:"spec"`
-		Status      string  `json:"status"`
+		ProjectID   string `json:"project_id"`
+		ParentID    *int64 `json:"parent_id"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Spec        string `json:"spec"`
+		Status      string `json:"status"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid JSON")
@@ -183,7 +184,11 @@ func (a *API) createTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) getTask(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid task ID")
+		return
+	}
 	task, err := a.store.GetTask(id)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
@@ -197,7 +202,11 @@ func (a *API) getTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) updateTask(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid task ID")
+		return
+	}
 	var req map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid JSON")
@@ -226,7 +235,11 @@ func (a *API) updateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) deleteTask(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid task ID")
+		return
+	}
 	if err := a.store.DeleteTask(id); err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -235,7 +248,11 @@ func (a *API) deleteTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) moveTask(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "invalid task ID")
+		return
+	}
 	var req struct {
 		Status   string  `json:"status"`
 		Position float64 `json:"position"`

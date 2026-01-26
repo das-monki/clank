@@ -79,7 +79,7 @@ func (s *Store) DeleteProject(id string) error {
 
 // Tasks
 
-func (s *Store) ListTasks(projectID, status string, parentID *string) ([]models.Task, error) {
+func (s *Store) ListTasks(projectID, status string, parentID *int64) ([]models.Task, error) {
 	query := `SELECT id, project_id, parent_id, title, description, spec, status, position, created_at FROM tasks WHERE 1=1`
 	args := []interface{}{}
 
@@ -149,7 +149,7 @@ func (s *Store) ListAllTasks(projectID, status string) ([]models.Task, error) {
 	return tasks, rows.Err()
 }
 
-func (s *Store) GetTask(id string) (*models.Task, error) {
+func (s *Store) GetTask(id int64) (*models.Task, error) {
 	var t models.Task
 	err := s.db.QueryRow(`SELECT id, project_id, parent_id, title, description, spec, status, position, created_at FROM tasks WHERE id = ?`, id).
 		Scan(&t.ID, &t.ProjectID, &t.ParentID, &t.Title, &t.Description, &t.Spec, &t.Status, &t.Position, &t.CreatedAt)
@@ -182,14 +182,26 @@ func (s *Store) GetNextPosition(projectID, status string) (float64, error) {
 	return maxPos.Float64 + 1.0, nil
 }
 
-func (s *Store) CreateTask(projectID string, parentID *string, title, description, spec, status string) (*models.Task, error) {
+func (s *Store) CreateTask(projectID string, parentID *int64, title, description, spec, status string) (*models.Task, error) {
 	pos, err := s.GetNextPosition(projectID, status)
 	if err != nil {
 		return nil, err
 	}
 
-	t := models.Task{
-		ID:          uuid.New().String(),
+	createdAt := time.Now()
+	result, err := s.db.Exec(`INSERT INTO tasks (project_id, parent_id, title, description, spec, status, position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		projectID, parentID, title, description, spec, status, pos, createdAt)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Task{
+		ID:          id,
 		ProjectID:   projectID,
 		ParentID:    parentID,
 		Title:       title,
@@ -197,18 +209,11 @@ func (s *Store) CreateTask(projectID string, parentID *string, title, descriptio
 		Spec:        spec,
 		Status:      status,
 		Position:    pos,
-		CreatedAt:   time.Now(),
-	}
-
-	_, err = s.db.Exec(`INSERT INTO tasks (id, project_id, parent_id, title, description, spec, status, position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		t.ID, t.ProjectID, t.ParentID, t.Title, t.Description, t.Spec, t.Status, t.Position, t.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-	return &t, nil
+		CreatedAt:   createdAt,
+	}, nil
 }
 
-func (s *Store) UpdateTask(id string, updates map[string]interface{}) (*models.Task, error) {
+func (s *Store) UpdateTask(id int64, updates map[string]interface{}) (*models.Task, error) {
 	if len(updates) == 0 {
 		return s.GetTask(id)
 	}
@@ -236,12 +241,12 @@ func (s *Store) UpdateTask(id string, updates map[string]interface{}) (*models.T
 	return s.GetTask(id)
 }
 
-func (s *Store) DeleteTask(id string) error {
+func (s *Store) DeleteTask(id int64) error {
 	_, err := s.db.Exec(`DELETE FROM tasks WHERE id = ?`, id)
 	return err
 }
 
-func (s *Store) MoveTask(id, status string, position float64) (*models.Task, error) {
+func (s *Store) MoveTask(id int64, status string, position float64) (*models.Task, error) {
 	_, err := s.db.Exec(`UPDATE tasks SET status = ?, position = ? WHERE id = ?`, status, position, id)
 	if err != nil {
 		return nil, err

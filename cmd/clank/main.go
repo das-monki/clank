@@ -347,7 +347,7 @@ func runTaskAdd(cmd *cobra.Command, args []string) error {
 	if err := apiPost("/api/tasks", body, &task); err != nil {
 		return err
 	}
-	fmt.Printf("Created task: %s (%s)\n", task.Title, task.ID)
+	fmt.Printf("Created task: %s (#%d)\n", task.Title, task.ID)
 	return nil
 }
 
@@ -371,7 +371,7 @@ func runTaskList(cmd *cobra.Command, args []string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "ID\tSTATUS\tTITLE")
 	for _, t := range tasks {
-		fmt.Fprintf(w, "%s\t%s\t%s\n", t.ID[:8], t.Status, t.Title)
+		fmt.Fprintf(w, "%d\t%s\t%s\n", t.ID, t.Status, t.Title)
 	}
 	return w.Flush()
 }
@@ -381,12 +381,12 @@ func runTaskShow(cmd *cobra.Command, args []string) error {
 	if err := apiGet("/api/tasks/"+args[0], &task); err != nil {
 		return err
 	}
-	fmt.Printf("ID:          %s\n", task.ID)
+	fmt.Printf("ID:          %d\n", task.ID)
 	fmt.Printf("Title:       %s\n", task.Title)
 	fmt.Printf("Status:      %s\n", task.Status)
 	fmt.Printf("Project:     %s\n", task.ProjectID)
 	if task.ParentID != nil {
-		fmt.Printf("Parent:      %s\n", *task.ParentID)
+		fmt.Printf("Parent:      %d\n", *task.ParentID)
 	}
 	fmt.Printf("Position:    %.2f\n", task.Position)
 	fmt.Printf("Created:     %s\n", task.CreatedAt.Format("2006-01-02 15:04"))
@@ -399,7 +399,7 @@ func runTaskShow(cmd *cobra.Command, args []string) error {
 	if len(task.Subtasks) > 0 {
 		fmt.Printf("\nSubtasks:\n")
 		for _, st := range task.Subtasks {
-			fmt.Printf("  - [%s] %s (%s)\n", st.Status, st.Title, st.ID[:8])
+			fmt.Printf("  - [%s] %s (#%d)\n", st.Status, st.Title, st.ID)
 		}
 	}
 	return nil
@@ -429,7 +429,7 @@ func runTaskEdit(cmd *cobra.Command, args []string) error {
 	if err := apiPatch("/api/tasks/"+args[0], updates, &task); err != nil {
 		return err
 	}
-	fmt.Printf("Updated task: %s\n", task.ID)
+	fmt.Printf("Updated task #%d\n", task.ID)
 	return nil
 }
 

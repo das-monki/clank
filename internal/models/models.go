@@ -10,9 +10,9 @@ type Project struct {
 }
 
 type Task struct {
-	ID          string    `json:"id"`
+	ID          int64     `json:"id"`
 	ProjectID   string    `json:"project_id"`
-	ParentID    *string   `json:"parent_id,omitempty"`
+	ParentID    *int64    `json:"parent_id,omitempty"`
 	Title       string    `json:"title"`
 	Description string    `json:"description,omitempty"`
 	Spec        string    `json:"spec,omitempty"`
