@@ -278,6 +278,98 @@ button.danger:hover {
     color: var(--text-muted);
 }
 
+/* Task Header with ID and Status */
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.375rem;
+}
+
+.task-id {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+}
+
+/* Status Selector */
+.status-selector {
+    position: relative;
+}
+
+.status-tag {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.status-tag:hover {
+    opacity: 0.8;
+}
+
+.status-backlog {
+    background: var(--text-muted);
+    color: white;
+}
+
+.status-todo {
+    background: #5B8DEF;
+    color: white;
+}
+
+.status-in_progress {
+    background: #F5A623;
+    color: white;
+}
+
+.status-done {
+    background: #7CB342;
+    color: white;
+}
+
+.status-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow);
+    z-index: 50;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.status-selector.open .status-dropdown {
+    display: block;
+}
+
+.status-option {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.status-option:hover {
+    background: var(--bg-tertiary);
+}
+
+.status-option:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+}
+
 /* Modal */
 .modal {
     display: none;

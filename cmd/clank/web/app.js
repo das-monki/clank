@@ -92,6 +92,18 @@ function createTaskCard(task) {
     const subtaskCount = tasks.filter(t => t.parent_id === task.id).length;
 
     card.innerHTML = `
+        <div class="task-header">
+            <span class="task-id">#${task.id}</span>
+            <div class="status-selector" data-task-id="${task.id}">
+                <span class="status-tag status-${task.status}">${formatStatus(task.status)}</span>
+                <div class="status-dropdown">
+                    <div class="status-option" data-status="backlog">Backlog</div>
+                    <div class="status-option" data-status="todo">To Do</div>
+                    <div class="status-option" data-status="in_progress">In Progress</div>
+                    <div class="status-option" data-status="done">Done</div>
+                </div>
+            </div>
+        </div>
         <div class="title">${escapeHtml(task.title)}</div>
         <div class="meta">
             <span class="project-tag">${escapeHtml(project?.name || 'Unknown')}</span>
@@ -99,8 +111,67 @@ function createTaskCard(task) {
         </div>
     `;
 
+    // Handle status selector click
+    const statusSelector = card.querySelector('.status-selector');
+    statusSelector.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close any other open dropdowns
+        document.querySelectorAll('.status-selector.open').forEach(s => {
+            if (s !== statusSelector) s.classList.remove('open');
+        });
+        statusSelector.classList.toggle('open');
+    });
+
+    // Handle status option selection
+    card.querySelectorAll('.status-option').forEach(option => {
+        option.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const newStatus = option.dataset.status;
+            if (newStatus !== task.status) {
+                await changeTaskStatus(task.id, newStatus);
+            }
+            statusSelector.classList.remove('open');
+        });
+    });
+
     card.addEventListener('click', () => openTaskModal(task));
     return card;
+}
+
+function formatStatus(status) {
+    const labels = {
+        'backlog': 'Backlog',
+        'todo': 'To Do',
+        'in_progress': 'In Progress',
+        'done': 'Done'
+    };
+    return labels[status] || status;
+}
+
+async function changeTaskStatus(taskId, newStatus) {
+    try {
+        // Get a reasonable position for the new column
+        const columnTasks = tasks.filter(t => t.status === newStatus && !t.parent_id);
+        const newPosition = columnTasks.length > 0
+            ? Math.max(...columnTasks.map(t => t.position)) + 1
+            : 1.0;
+
+        await api('POST', `/tasks/${taskId}/move`, {
+            status: newStatus,
+            position: newPosition
+        });
+
+        // Update local state
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+            task.status = newStatus;
+            task.position = newPosition;
+        }
+        renderKanban();
+    } catch (err) {
+        console.error('Failed to change status:', err);
+        alert('Failed to change status: ' + err.message);
+    }
 }
 
 function escapeHtml(text) {
@@ -361,7 +432,7 @@ deleteBtn.addEventListener('click', async () => {
 
 // Add subtask
 document.getElementById('add-subtask-btn').addEventListener('click', async () => {
-    const parentId = document.getElementById('task-id').value;
+    const parentId = parseInt(document.getElementById('task-id').value, 10);
     const projectId = document.getElementById('task-project').value;
     const input = document.getElementById('subtask-title-input');
     const title = input.value.trim();
@@ -475,6 +546,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         // Update visible column
         document.querySelectorAll('.column').forEach(col => col.classList.remove('active'));
         document.querySelector(`.column[data-status="${column}"]`).classList.add('active');
+    });
+});
+
+// Close status dropdowns when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.status-selector.open').forEach(s => {
+        s.classList.remove('open');
     });
 });
 
