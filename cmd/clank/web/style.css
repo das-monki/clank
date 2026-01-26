@@ -16,30 +16,30 @@
 }
 
 :root {
-    /* Fresh, playful palette */
-    --bg-canvas: #F5F7FA;
+    /* Warm, playful palette */
+    --bg-canvas: #FFF8EC;
     --bg-primary: #FFFFFF;
-    --bg-secondary: #F0F4F8;
+    --bg-secondary: #FFF1E0;
     --bg-elevated: #FFFFFF;
-    --bg-hover: rgba(99, 102, 241, 0.06);
+    --bg-hover: rgba(255, 107, 107, 0.08);
 
     /* Text hierarchy */
-    --text-primary: #1E293B;
-    --text-secondary: #475569;
-    --text-tertiary: #94A3B8;
-    --text-muted: #CBD5E1;
+    --text-primary: #3D2C29;
+    --text-secondary: #6B5750;
+    --text-tertiary: #A89890;
+    --text-muted: #D4C8C2;
 
-    /* Accent palette - vibrant indigo/violet */
-    --accent: #6366F1;
-    --accent-hover: #4F46E5;
-    --accent-light: rgba(99, 102, 241, 0.12);
-    --accent-glow: rgba(99, 102, 241, 0.25);
+    /* Accent palette - warm coral */
+    --accent: #FF6B6B;
+    --accent-hover: #EE5A5A;
+    --accent-light: rgba(255, 107, 107, 0.12);
+    --accent-glow: rgba(255, 107, 107, 0.25);
 
-    /* Status colors - bright and fun */
-    --status-backlog: #94A3B8;
-    --status-todo: #3B82F6;
-    --status-progress: #F59E0B;
-    --status-done: #10B981;
+    /* Status colors - warm and fun */
+    --status-backlog: #A89890;
+    --status-todo: #4ECDC4;
+    --status-progress: #FFB347;
+    --status-done: #7BC67B;
 
     /* Borders & shadows */
     --border-subtle: rgba(0, 0, 0, 0.05);
@@ -508,18 +508,18 @@ button.danger:hover {
 }
 
 .status-todo {
-    background: rgba(59, 130, 246, 0.12);
-    color: #2563EB;
+    background: rgba(78, 205, 196, 0.15);
+    color: #2BA8A0;
 }
 
 .status-in_progress {
-    background: rgba(245, 158, 11, 0.12);
-    color: #D97706;
+    background: rgba(255, 179, 71, 0.18);
+    color: #D4872A;
 }
 
 .status-done {
-    background: rgba(16, 185, 129, 0.12);
-    color: #059669;
+    background: rgba(123, 198, 123, 0.18);
+    color: #4A9E4A;
 }
 
 .status-dropdown {
